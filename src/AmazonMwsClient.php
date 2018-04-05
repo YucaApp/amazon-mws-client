@@ -1,6 +1,6 @@
 <?php
 
-namespace Weengs;
+namespace Yuca;
 
 use GuzzleHttp\Client;
 
@@ -60,14 +60,14 @@ class AmazonMwsClient
      * @param string|null $baseUrl - default is US, see the possible values. UK is https://mws.amazonservices.co.uk for example
      */
     public function __construct(
-        string $accessKey,
-        string $secretKey,
-        string $sellerId,
-        array $marketplaceIds,
-        string $mwsAuthToken,
-        string $applicationName = 'WeengsAmazonMwsClient',
-        string $applicationVersion = '1.0',
-        string $baseUrl = 'https://mws.amazonservices.com'
+        $accessKey,
+        $secretKey,
+        $sellerId,
+        $marketplaceIds,
+        $mwsAuthToken,
+        $applicationName = 'YucaAmazonMwsClient',
+        $applicationVersion = '1.0',
+        $baseUrl = 'https://mws.amazonservices.com'
     )
     {
         $needle = 'https://mws.amazonservices';
@@ -106,10 +106,11 @@ class AmazonMwsClient
      * @param string $action
      * @param string $versionUri
      * @param array $optionalParams
+     * @param boolean
      *
-     * @return \SimpleXMLElement
+     * @return mix
      */
-    public function send(string $action, string $versionUri, array $optionalParams = [], bool $debug = false): \SimpleXMLElement
+    public function send($action, $versionUri, $optionalParams = [], $debug = false)
     {
         $params = array_merge($optionalParams, $this->buildRequiredParams($action, $versionUri));
 
@@ -121,14 +122,22 @@ class AmazonMwsClient
             'body'        => $queryString,
             'http_errors' => false,
             'headers'     => [
-                'User-Agent' => $this->generateUserAgent(),
+                'User-Agent' => $this->genUserAgent(),
                 'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8',
             ],
         ]);
 
         $response = $client->request(self::METHOD_POST, $versionUri);
 
-        return simplexml_load_string($response->getBody()->getContents());
+        libxml_use_internal_errors(true);
+        $content = $response->getBody()->getContents();
+        $result = simplexml_load_string($content);
+        if (! $result) {
+            $result = $content;
+            libxml_clear_errors();
+        }
+
+        return $result;
     }
 
     /**
@@ -136,7 +145,7 @@ class AmazonMwsClient
      * 
      * @return string 
      */
-    protected function generateUserAgent()
+    protected function genUserAgent()
     {
         $userAgent = $this->applicationName . '/' . $this->applicationVersion;
 
@@ -168,7 +177,7 @@ class AmazonMwsClient
      *
      * @return string
      */
-    protected function getParametersAsString(array $parameters): string
+    protected function getParametersAsString($parameters)
     {
         $queryParameters = [];
         foreach ($parameters as $key => $value) {
@@ -186,7 +195,7 @@ class AmazonMwsClient
      *
      * @return string
      */
-    protected function calculateStringToSign(array $parameters, string $uri): string
+    protected function calculateStringToSign($parameters, $uri)
     {
         $data = self::METHOD_POST;
         $data .= "\n";
@@ -222,7 +231,7 @@ class AmazonMwsClient
      *
      * @return string query string to send in the body
      */
-    protected function genQuery(array $params, string $uri): string
+    protected function genQuery($params, $uri)
     {
         $params['Timestamp'] = $this->genTime();
         unset($params['Signature']);
@@ -245,7 +254,7 @@ class AmazonMwsClient
      *
      * @return string Unix timestamp of the time, minus 2 minutes.
      */
-    protected function genTime(string $time = null): string
+    protected function genTime($time = null)
     {
         if ($time) {
             $timestamp = strtotime($time);
@@ -264,7 +273,7 @@ class AmazonMwsClient
      *
      * @return string signed string
      */
-    protected function signParameters(array $parameters, string $uri): string
+    protected function signParameters($parameters, $uri)
     {
         $stringToSign = $this->calculateStringToSign($parameters, $uri);
 
@@ -280,7 +289,7 @@ class AmazonMwsClient
      *
      * @return string
      */
-    protected function sign(string $data): string
+    protected function sign($data)
     {
         return base64_encode(
             hash_hmac('sha256', $data, $this->secretKey, true)
@@ -292,7 +301,7 @@ class AmazonMwsClient
      *
      * @return array
      */
-    protected function buildRequiredParams(string $action, string $versionUri): array
+    protected function buildRequiredParams($action, $versionUri)
     {
         // extract version from url
         $version = (explode('/', $versionUri));

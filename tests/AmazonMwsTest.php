@@ -12,7 +12,7 @@ final class AmazonMwsTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Base URl must contain "https://mws.amazonservices", received "https://weengs.com"');
 
-        new \Weengs\AmazonMwsClient(
+        new \Yuca\AmazonMwsClient(
             'foo',
             'bar',
             'baz',

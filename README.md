@@ -14,16 +14,16 @@ Check their documentation and scratchpad to learn all available actions and thei
      
 ### Requirements
 
-* PHP >= 7.0
+* PHP >= 5.6
 * Guzzle 6
 
 ### Install
-`composer require weengsapp/amazon-mws-client`
+`composer require yuca/amazon-mws-client`
 
 ### Usage
 ```php
 // instantiate the client with your credentials
-$client = new Weengs\AmazonMwsClient(
+$client = new Yuca\AmazonMwsClient(
     'access key',
     'secret key',
     'seller id',
