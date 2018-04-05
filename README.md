@@ -1,7 +1,5 @@
 # PHP Client for Amazon MWS API
 
-[![CircleCI](https://circleci.com/gh/thiagomarini/royal-mail-client.svg?style=svg)](https://circleci.com/gh/thiagomarini/royal-mail-client)
-
 ## What for?
 
 We got very disappointed with the official PHP client Amazon offers on their docs and decided to write a simple client based on Guzzle and suitable for PHP 7 projects.
