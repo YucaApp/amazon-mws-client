@@ -1,6 +1,5 @@
 {
     "name":"yuca/amazon-mws-client",
-    "version":"1.0.1",
     "description":"PHP client for Amazon MWS API",
     "keywords":[
         "weengs",
@@ -12,6 +11,7 @@
     "minimum-stability":"stable",
     "license":"MIT",
     "type":"library",
+    "homepage": "https://github.com/YucaApp/amazon-mws-client",
     "authors":[
         {
             "name":"Thiago Marini",
@@ -24,6 +24,10 @@
             "email":"agung.darmantoo@gmail.com"
         }
     ],
+    "support": {
+        "issues": "https://github.com/YucaApp/amazon-mws-client/issues",
+        "source": "https://github.com/YucaApp/amazon-mws-client"
+    },
     "require":{
         "php":">=5.6",
         "guzzlehttp/guzzle":"^6.2"
