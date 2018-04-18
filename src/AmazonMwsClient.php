@@ -112,7 +112,7 @@ class AmazonMwsClient
      */
     public function send($action, $versionUri, $optionalParams = [], $debug = false)
     {
-        $params = array_merge($optionalParams, $this->buildRequiredParams($action, $versionUri));
+        $params = array_merge($optionalParams, $this->buildRequiredParams($action, $versionUri, isset($optionalParams['MarketplaceId'])));
 
         $queryString = $this->genQuery($params, $versionUri);
 
@@ -135,6 +135,10 @@ class AmazonMwsClient
         if (! $result) {
             $result = $content;
             libxml_clear_errors();
+        }
+
+        if (isset($result->Error)) {
+            throw new AmazonMwsClientException($result, $response->getHeaders());
         }
 
         return $result;
@@ -298,10 +302,12 @@ class AmazonMwsClient
 
     /**
      * @param string $action
+     * @param string $versionUri
+     * @param boolean $ignoreMarketplaceIds
      *
      * @return array
      */
-    protected function buildRequiredParams($action, $versionUri)
+    protected function buildRequiredParams($action, $versionUri, $ignoreMarketplaceIds = false)
     {
         // extract version from url
         $version = (explode('/', $versionUri));
@@ -316,12 +322,14 @@ class AmazonMwsClient
             'SignatureMethod'    => self::SIGNATURE_METHOD
         ];
 
-        $key = 1;
-        foreach ($this->marketplaceIds as $marketplaceId) {
-            $param = sprintf('MarketplaceId.Id.%s', $key);
+        if (! $ignoreMarketplaceIds) {
+            $key = 1;
+            foreach ($this->marketplaceIds as $marketplaceId) {
+                $param = sprintf('MarketplaceId.Id.%s', $key);
 
-            $requiredParams[$param] = $marketplaceId;
-            $key++;
+                $requiredParams[$param] = $marketplaceId;
+                $key++;
+            }
         }
 
         return $requiredParams;
