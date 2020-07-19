@@ -12,42 +12,42 @@ class AmazonMwsClient
     /**
      * @var string
      */
-    private $accessKey;
+    protected $accessKey;
 
     /**
      * @var string
      */
-    private $secretKey;
+    protected $secretKey;
 
     /**
      * @var string
      */
-    private $sellerId;
+    protected $sellerId;
 
     /**
      * @var array
      */
-    private $marketplaceIds;
+    protected $marketplaceIds;
 
     /**
      * @var string
      */
-    private $mwsAuthToken;
+    protected $mwsAuthToken;
 
     /**
      * @var string
      */
-    private $applicationName;
+    protected $applicationName;
 
     /**
      * @var string
      */
-    private $applicationVersion;
+    protected $applicationVersion;
 
     /**
      * @var string
      */
-    private $baseUrl;
+    protected $baseUrl;
 
     /**
      * AmazonMwsClient constructor.
@@ -114,20 +114,28 @@ class AmazonMwsClient
     {
         $params = array_merge($optionalParams, $this->buildRequiredParams($action, $versionUri, isset($optionalParams['MarketplaceId'])));
 
-        $queryString = $this->genQuery($params, $versionUri);
-
         $client = new Client([
             'debug' => $debug,
             'base_uri'    => $this->baseUrl,
-            'body'        => $queryString,
             'http_errors' => false,
+        ]);
+
+        $requestParams = [
             'headers'     => [
                 'User-Agent' => $this->genUserAgent(),
                 'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8',
             ],
-        ]);
+        ];
 
-        $response = $client->request(self::METHOD_POST, $versionUri);
+        if (isset($params['xml'])) {
+            $requestParams['headers']['Content-Type'] = 'text/xml';
+            $requestParams['query'] = $this->genQuery($params, $versionUri);
+            $requestParams['body'] = $params['xml'];
+        } else {
+            $requestParams['body'] = $this->getParametersAsString($this->genQuery($params, $versionUri));
+        }
+
+        $response = $client->request(self::METHOD_POST, $versionUri, $requestParams);
 
         libxml_use_internal_errors(true);
         $content = $response->getBody()->getContents();
@@ -238,10 +246,14 @@ class AmazonMwsClient
     protected function genQuery($params, $uri)
     {
         $params['Timestamp'] = $this->genTime();
+        if (isset($params['xml'])) {
+            $params['ContentMD5Value'] = base64_encode(md5($params['xml'], true));
+        }
         unset($params['Signature']);
+        unset($params['xml']);
         $params['Signature'] = $this->signParameters($params, $uri);
 
-        return $this->getParametersAsString($params);
+        return $params;
     }
 
     /**
