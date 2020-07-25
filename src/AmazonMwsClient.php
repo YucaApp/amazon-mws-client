@@ -337,7 +337,7 @@ class AmazonMwsClient
         if (! $ignoreMarketplaceIds) {
             $key = 1;
             foreach ($this->marketplaceIds as $marketplaceId) {
-                $param = sprintf('MarketplaceId.Id.%s', $key);
+                $param = sprintf('MarketplaceIdList.Id.%s', $key);
 
                 $requiredParams[$param] = $marketplaceId;
                 $key++;
