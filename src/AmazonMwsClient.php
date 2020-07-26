@@ -336,9 +336,14 @@ class AmazonMwsClient
 
         if (! $ignoreMarketplaceIds) {
             $key = 1;
-            foreach ($this->marketplaceIds as $marketplaceId) {
-                $param = sprintf('MarketplaceIdList.Id.%s', $key);
+            if (strpos($versionUri, 'Orders') !== false) {
+                $marketplaceKeyFormat = 'MarketplaceId.Id.%s';
+            } else {
+                $marketplaceKeyFormat = 'MarketplaceIdList.Id.%s';
+            }
 
+            foreach ($this->marketplaceIds as $marketplaceId) {
+                $param = sprintf($marketplaceKeyFormat, $key);
                 $requiredParams[$param] = $marketplaceId;
                 $key++;
             }
