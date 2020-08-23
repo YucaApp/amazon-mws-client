@@ -70,7 +70,7 @@ class AmazonMwsClient
         $baseUrl = 'https://mws.amazonservices.com'
     )
     {
-        $needle = 'https://mws.amazonservices';
+        $needle = '.amazonservices';
 
         if (strpos($baseUrl, $needle) === false) {
             throw new \InvalidArgumentException(
